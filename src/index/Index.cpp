@@ -13,8 +13,8 @@
 #include "../parser/NTriplesParser.h"
 #include "../parser/TsvParser.h"
 #include "../util/Conversions.h"
-#include "./PrefixHeuristic.h"
 #include "./Index.h"
+#include "./PrefixHeuristic.h"
 #include "./VocabularyGenerator.h"
 
 using std::array;

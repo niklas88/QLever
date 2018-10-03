@@ -42,8 +42,7 @@ class Index {
  public:
   typedef stxxl::vector<array<Id, 3>> ExtVec;
   // Block Id, Context Id, Word Id, Score, entity
-  typedef stxxl::vector<tuple<Id, Id, Id, Score, bool>>
-      TextVec;
+  typedef stxxl::vector<tuple<Id, Id, Id, Score, bool>> TextVec;
   typedef std::tuple<Id, Id, Score> Posting;
 
   // Forbid copy and assignment
