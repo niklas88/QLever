@@ -524,9 +524,11 @@ void ParsedQuery::GraphPattern::toString(std::ostringstream& os,
 // _____________________________________________________________________________
 void ParsedQuery::GraphPattern::recomputeIds(size_t* id_count) {
   bool allocatedIdCounter = false;
+  // Store the shared id_count on the stack. Unused by all but the first
+  // recursive call but cheaper than heap allocation
+  size_t id_count_store = 0;
   if (id_count == nullptr) {
-    id_count = new size_t(0);
-    allocatedIdCounter = true;
+    id_count = &id_count_store;
   }
   _id = *id_count;
   (*id_count)++;
@@ -547,10 +549,6 @@ void ParsedQuery::GraphPattern::recomputeIds(size_t* id_count) {
         // subquery children have their own id space
         break;
     }
-  }
-
-  if (allocatedIdCounter) {
-    delete id_count;
   }
 }
 
