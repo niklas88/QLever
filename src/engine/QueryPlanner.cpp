@@ -208,7 +208,6 @@ std::vector<QueryPlanner::SubtreePlan> QueryPlanner::optimize(
         case ParsedQuery::GraphPatternOperation::Type::TRANS_PATH: {
           const SubtreePlan* sub =
               &patternPlans[child->_pathData._childGraphPattern->_id];
-          childPlanStorage.emplace_back(_qec);
           size_t leftCol, rightCol;
           Id leftValue, rightValue;
           std::string leftColName, rightColName;
@@ -250,6 +249,7 @@ std::vector<QueryPlanner::SubtreePlan> QueryPlanner::optimize(
               _qec, sub->_qet, leftVar, rightVar, leftCol, rightCol, leftValue,
               rightValue, leftColName, rightColName, min, max);
 
+          childPlanStorage.emplace_back(_qec);
           QueryExecutionTree& tree = *childPlanStorage.back()._qet.get();
           tree.setVariableColumns(static_cast<TransitivePath*>(transOp.get())
                                       ->getVariableColumns());
@@ -263,7 +263,6 @@ std::vector<QueryPlanner::SubtreePlan> QueryPlanner::optimize(
     // Create a graph.
     // Each triple corresponds to a node, there is an edge between two nodes iff
     // they share a variable.
-
     TripleGraph tg = createTripleGraph(pattern);
 
     // Each node/triple corresponds to a scan (more than one way possible),
@@ -1796,7 +1795,6 @@ vector<QueryPlanner::SubtreePlan> QueryPlanner::merge(
                 b[j]._qet.get()->getResultWidth() == 2) {
               right = b[j]._qet;
             } else {
-              // Create a sort operation.
               // Create an order by operation.
               vector<pair<size_t, bool>> sortIndices;
               sortIndices.emplace_back(
@@ -2188,6 +2186,8 @@ bool QueryPlanner::connected(const QueryPlanner::SubtreePlan& a,
     }
     auto& connectedNodes = tg._adjLists[i];
     for (auto targetNodeId : connectedNodes) {
+      // TODO(schnelle) I think this can be simplified as we already exclude
+      // overlap with the earlier check as well as make sure node i is in a?
       if ((((a._idsOfIncludedNodes >> targetNodeId) & 1) == 0) &&
           (((b._idsOfIncludedNodes >> targetNodeId) & 1) != 0)) {
         return true;
