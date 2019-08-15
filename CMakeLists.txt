@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.4)
+cmake_minimum_required(VERSION 3.10.2)
 project(QLever C CXX)
 
 # C/C++ Versions
@@ -122,6 +122,15 @@ endif()
 set_property(CACHE LOGLEVEL PROPERTY STRINGS FATAL ERROR WARN INFO DEBUG TRACE)
 add_definitions(-DLOGLEVEL=${LOG_LEVEL_${LOGLEVEL}})
 
+include(CheckIPOSupported)
+check_ipo_supported(RESULT lto_supported OUTPUT error)
+if (lto_supported)
+  # Enable Link Time Optimization for all our targets
+  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+else()
+  message(STATUS "IPO / LTO not supported: <${error}>")
+endif()
+
 add_subdirectory(src/parser)
 add_subdirectory(src/engine)
 add_subdirectory(src/index)
@@ -133,7 +142,6 @@ add_subdirectory(test)
 configure_file(src/web/index.html index.html)
 configure_file(src/web/style.css style.css)
 configure_file(src/web/script.js script.js)
-
 
 add_executable(IndexBuilderMain src/index/IndexBuilderMain.cpp)
 target_link_libraries(IndexBuilderMain index ${CMAKE_THREAD_LIBS_INIT})
@@ -161,7 +169,4 @@ target_link_libraries(TurtleParserMain parser ${CMAKE_THREAD_LIBS_INIT})
 
 add_executable(VocabularyMergerMain src/VocabularyMergerMain.cpp)
 target_link_libraries(VocabularyMergerMain index ${CMAKE_THREAD_LIBS_INIT})
-
-#add_executable(TextFilterComparison src/experiments/TextFilterComparison.cpp)
-#target_link_libraries (TextFilterComparison experiments)
 
