@@ -1044,12 +1044,13 @@ vector<QueryPlanner::SubtreePlan> QueryPlanner::seedWithScansAndText(
           plan._idsOfIncludedNodes |= (uint64_t(1) << i);
           auto& tree = *plan._qet.get();
           if (node._triple._p._iri == HAS_PREDICATE_PREDICATE) {
-            // TODO(schnelle): Handle ?p ql:has-prediacte ?p
             // Add a has relation scan instead of a normal IndexScan
             HasPredicateScan::ScanType scanType;
             if (isVariable(node._triple._s)) {
               scanType = HasPredicateScan::ScanType::FREE_S;
-            } else if (isVariable(node._triple._o)) {
+            } else {
+              // The object must be a variable as the predicate isn't and the
+              // subject isn't and we definitely have a variable in the triple.
               scanType = HasPredicateScan::ScanType::FREE_O;
             }
             auto scan = std::make_shared<HasPredicateScan>(_qec, scanType);
